@@ -1,0 +1,105 @@
+stages:
+  - build
+  - deploy
+  - tag
+  - prepare
+  - release
+
+variables:
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/${CI_PROJECT_NAME}"
+
+build:
+  stage: build
+  tags:
+    - qa-gitlab-runner
+  image: golang:1.23-alpine
+  only:
+    - main
+  before_script:
+    - apk update
+    - apk add zip curl
+  script:
+    - |
+      echo "v$(date +%y.%m.%d)" > pkg/output/version/version.txt
+      go mod tidy -compat=1.23
+      mkdir builds
+
+      echo "Building APP"
+      GOOS=linux GOARCH=amd64 go build -o builds/dc_$(date +%y.%m.%d)_linux main.go
+      GOOS=darwin GOARCH=amd64 go build -o builds/dc_$(date +%y.%m.%d)_darwin main.go
+      GOOS=windows GOARCH=amd64 go build -o builds/dc_$(date +%y.%m.%d)_windows.exe main.go
+
+      echo "ZIP APP Contents"
+      zip -r -j dc_$(date +%y.%m.%d)_linux.zip builds/dc_$(date +%y.%m.%d)_linux
+      zip -r -j dc_$(date +%y.%m.%d)_mac.zip builds/dc_$(date +%y.%m.%d)_darwin
+      zip -r -j dc_$(date +%y.%m.%d)_win.zip builds/dc_$(date +%y.%m.%d)_windows.exe
+
+      echo "Submit Package to Package Registry"
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file dc_$(date +%y.%m.%d)_linux.zip ${PACKAGE_REGISTRY_URL}/$(date +%y.%m.%d)/dc_$(date +%y.%m.%d)_linux.zip
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file dc_$(date +%y.%m.%d)_mac.zip ${PACKAGE_REGISTRY_URL}/$(date +%y.%m.%d)/dc_$(date +%y.%m.%d)_mac.zip
+      curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file dc_$(date +%y.%m.%d)_win.zip ${PACKAGE_REGISTRY_URL}/$(date +%y.%m.%d)/dc_$(date +%y.%m.%d)_win.zip
+  artifacts:
+    paths:
+      - builds/
+    expire_in: 2 hrs
+
+create_tag:
+  stage: tag
+  tags:
+    - qa-gitlab-runner
+  image: alpine:3.20
+  only:
+    - main
+  dependencies:
+    - build
+  before_script:
+    - apk add --no-cache git
+  script:
+    - git config user.name "Rodrigo Corrêa"
+    - git config user.email rodrigo.correa@pt.bosch.com
+    - git tag -fa "v$(date +%y.%m.%d)" -m "Auto-Release"
+    - git push --tags --force https://oauth2:${GITLAB_ACCESS_TOKEN}@gitlab.cbsdev.net/${CI_PROJECT_PATH} HEAD:main
+
+prepare_job:
+  stage: prepare   
+  tags:
+    - qa-gitlab-runner   
+  image: alpine:3.20                                        # This stage must run before the release stage
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never                                             # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH             # Run this job when commits are pushed or merged to the default branch
+  script:
+    - echo "EXTRA_DESCRIPTION=v$(date +%y.%m.%d) - New Version" >> variables.env  # Generate the EXTRA_DESCRIPTION and TAG environment variables
+    - echo "TAG=$(date +%y.%m.%d)" >> variables.env             # and append to the variables.env file
+  artifacts:
+    reports:
+      dotenv: variables.env                                   # Use artifacts:reports:dotenv to expose the variables to other jobs
+
+release_job:
+  stage: release
+  tags:
+    - qa-gitlab-runner
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: prepare_job
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never                                  # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Run this job when commits are pushed or merged to the default branch
+  script:
+    - echo "running release_job for v$TAG"
+  release:
+    name: 'Release v$TAG'
+    description: 'Created using the release-cli $EXTRA_DESCRIPTION'  # $EXTRA_DESCRIPTION and the $TAG
+    tag_name: 'v$TAG'                                                 # variables must be defined elsewhere
+    ref: '$CI_COMMIT_SHA'                                            # in the pipeline. For example, in the
+    assets:
+      links:
+        - name: 'dc_$(date +%y.%m.%d)_linux'
+          url: '${PACKAGE_REGISTRY_URL}/$TAG/dc_$(date +%y.%m.%d)_linux.zip'
+        - name: 'dc_$(date +%y.%m.%d)_mac'
+          url: '${PACKAGE_REGISTRY_URL}/$TAG/dc_$(date +%y.%m.%d)_mac.zip'
+        - name: 'dc_$(date +%y.%m.%d)_win'
+          url: '${PACKAGE_REGISTRY_URL}/$TAG/dc_$(date +%y.%m.%d)_win.zip'

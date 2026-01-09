@@ -1,0 +1,21 @@
+package font 
+
+const Reset = "\033[0m"
+const Italic = "\033[3m"
+const Red = "\033[31m"
+const Green = "\033[32m"
+const Yellow = "\033[33m"
+const Blue = "\033[34m"
+const Magenta = "\033[35m"
+const Cyan = "\033[36m"
+const Gray = "\033[37m"
+const White = "\033[97m"
+const BoldRed = "\033[31;1m"
+const BoldGreen = "\033[32;1m"
+const BoldYellow = "\033[33;1m"
+const BoldBlue = "\033[34;1m"
+const BoldMagenta = "\033[35;1m"
+const BoldCyan = "\033[36;1m"
+const BoldGray = "\033[37;1m"
+const BoldWhite = "\033[97;1m"
+
