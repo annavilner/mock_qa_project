@@ -23,4 +23,8 @@ export class CheckoutPage {
       this.page.getByText('Thank you for your order!')
     ).toBeVisible();
   }
+async expectError(message: string) {
+  await expect(this.page.locator('[data-test="error"]')).toHaveText(message);
 }
+
+} 
