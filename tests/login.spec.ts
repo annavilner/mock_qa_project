@@ -17,4 +17,19 @@ test.describe('Login', () => {
       'Epic sadface: Username and password do not match any user in this service'
     );
   });
+
+  test('validate problem user', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+    await login.login('problem_user', 'secret_sauce');
+    await page.waitForURL('**/inventory.html');
+  });
+  test('validate performance user', async ({ page }) => {
+    const login = new LoginPage(page);
+    await login.goto();
+    await login.login('performance_glitch_user', 'secret_sauce');
+    await page.waitForURL('**/inventory.html');
+  });
+
+
 });

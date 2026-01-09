@@ -17,7 +17,7 @@ test('complete checkout flow', async ({ page }) => {
   await products.goToCart();
   await cart.checkout();
 
-  await checkout.fillInformation('John', 'Doe', '12345');
+  await checkout.fillInformation('Anna', 'Doe', '5623');
   await checkout.finishCheckout();
   await checkout.expectSuccess();
 });

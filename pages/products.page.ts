@@ -17,11 +17,25 @@ export class ProductsPage {
       .click();
   }
 
-  async goToCart() {
-    await this.page.locator('.shopping_cart_link').click();
+  async removeProductFromCart(productName: string) {
+    await this.page
+      .locator('.inventory_item')
+      .filter({ hasText: productName })
+      .getByRole('button', { name: 'Remove' })
+      .click();
   }
 
-  async expectCartCount(count: string) {
-    await expect(this.cartBadge).toHaveText(count);
+  async expectCartCount(count: number | string) {
+    const badge = this.page.locator('.shopping_cart_badge');
+
+    if (Number(count) === 0) {
+      await expect(badge).toHaveCount(0);
+    } else {
+      await expect(badge).toHaveText(String(count));
+    }
+  }
+
+  async goToCart() {
+    await this.page.locator('.shopping_cart_link').click();
   }
 }
