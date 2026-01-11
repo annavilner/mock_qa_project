@@ -14,7 +14,13 @@ export class CartPage {
       this.page.locator('.inventory_item_name', { hasText: productName })
     ).toBeVisible();
   }
-
+ async removeProductFromCart(productName: string) {
+    await this.page
+      .locator('.cart_item')
+      .filter({ hasText: productName })
+      .getByRole('button', { name: 'Remove' })
+      .click();
+  } 
   async checkout() {
     await this.checkoutButton.click();
   }
