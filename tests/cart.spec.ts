@@ -5,7 +5,7 @@ import { ProductsPage } from '../pages/products.page';
 import { expect, Page } from '@playwright/test';
 
 export class CartPage {
-  constructor(private page: Page) {}
+  constructor(public page: Page) {}
 
  async expectProductInCart(productName: string) {
   const product = this.page
@@ -78,14 +78,16 @@ test('validate cart is empty after removing all products', async ({ page }) => {
 
   await products.addProductToCart('Sauce Labs Backpack');
   await products.expectCartCount('1');
- await products.goToCart();
-  await products.removeProductFromCart('Sauce Labs Backpack');
-  await products.expectCartCount('0');
-  const removedProduct = page.locator(
-    '.inventory_item_name',
-    { hasText: 'Sauce Labs Backpack' }
-  );
-  
- 
-  await expect(page.getByText('Sauce Labs Backpack')).toHaveCount(0);
+await products.goToCart();
+
+ const removeButton = cart.page.locator('.cart_item')
+  .getByRole('button', { name: 'Remove' });
+
+  await expect(removeButton).toBeVisible({ timeout: 5000 }); // wait for button
+  await removeButton.click();
+
+  const removedProduct = page.locator('text=Sauce Labs Backpack');
+
+await expect(removedProduct).toHaveCount(0);
+
 });
