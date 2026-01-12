@@ -26,5 +26,12 @@ export class CheckoutPage {
 async expectError(message: string) {
   await expect(this.page.locator('[data-test="error"]')).toHaveText(message);
 }
+  async cancelCheckout() {
+    await this.page.getByRole('button', { name: 'Cancel' }).click();
+  }
 
+  async goBackToCart() {
+    await this.page.getByRole('button', { name: 'Back to Cart' }).click();
+  }
+  
 } 

@@ -29,4 +29,16 @@ async removeProductFromCart(productName: string) {
   async checkout() {
     await this.checkoutButton.click();
   }
+
+  async expectCartItemCount(count: number) {
+    const itemCount = this.page.locator('.cart_item').count();
+    await expect(itemCount).toBe(count);
+  } 
+  async expectCartIsEmpty() {
+    const itemCount = this.page.locator('.cart_item').count();
+    await expect(itemCount).toBe(0);
+  }
+  async expectOnCartPage() {
+    await expect(this.page).toHaveURL(/.*cart.html/);
+  } 
 }

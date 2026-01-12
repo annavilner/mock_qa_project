@@ -59,3 +59,42 @@ test('incomplete checkout flow with empty names', async ({ page }) => {
   await checkout.fillInformation('', '', '12345');
   await checkout.expectError('Error: First Name is required');
 });
+
+ test('incomplete checkout flow with empty postal code', async ({ page }) => {
+  const login = new LoginPage(page);
+  const products = new ProductsPage(page);
+  const cart = new CartPage(page);
+  const checkout = new CheckoutPage(page);
+
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+
+  await products.addProductToCart('Sauce Labs Backpack');
+  await products.goToCart();
+  await cart.checkout();
+
+  // Empty postal code
+  await checkout.fillInformation('Jane', 'Doe', '');
+  await checkout.expectError('Error: Postal Code is required');
+});
+
+test('cancel checkout process', async ({ page }) => {
+  const login = new LoginPage(page);
+  const products = new ProductsPage(page);
+  const cart = new CartPage(page);
+  const checkout = new CheckoutPage(page);
+
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+
+  await products.addProductToCart('Sauce Labs Backpack');
+  await products.goToCart();
+  await cart.checkout();
+
+  await checkout.fillInformation('Alice', 'Johnson', '67890');
+  await checkout.cancelCheckout();
+
+  // Verify we are back on the product page
+  await products.
+  expectOnProductsPage(); 
+});

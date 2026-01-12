@@ -38,4 +38,7 @@ export class ProductsPage {
   async goToCart() {
     await this.page.locator('.shopping_cart_link').click();
   }
+  async expectOnProductsPage() {
+    await expect(this.page).toHaveURL(/.*inventory.html/);   
+}
 }
