@@ -42,3 +42,21 @@ async removeProductFromCart(productName: string) {
     await expect(this.page).toHaveURL(/.*cart.html/);
   } 
 }
+
+export class Sidebar {
+  constructor(private readonly page: Page) {}
+
+  async open() {
+    await this.page.getByRole('button', { name: 'Open Menu' }).click();
+  }
+
+  
+
+  async logout() {
+    await expect(
+      this.page.locator('[data-test="logout_sidebar_link"]')
+    ).toBeVisible();
+    
+  }
+}
+

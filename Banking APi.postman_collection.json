@@ -1,0 +1,175 @@
+{
+	"info": {
+		"_postman_id": "08b2bb92-19a5-4105-a822-329dbced2784",
+		"name": "Banking APi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "24251836"
+	},
+	"item": [
+		{
+			"name": "transaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-mock-response-code",
+						"value": "200",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "{{url}}/transaction"
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/transaction"
+					},
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\n \"transaction_id\": \"TXN123456\",\n \"success\": true,\n \"new_balance\": 850.25,\n \"timestamp\": \"2024-01-15T10:30:00Z\"\n}"
+				}
+			]
+		},
+		{
+			"name": "transaction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "{{url}}/transaction"
+			},
+			"response": [
+				{
+					"name": "Error-400",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"success\": false, \"error\": \"Insufficient funds\", \"current_balance\": 50.0 }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/transaction"
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\n \"success\": false,\n \"error\": \"Insufficient funds\",\n \"current_balance\": 50.0\n}"
+				}
+			]
+		},
+		{
+			"name": "accounts/{account_id}/balance",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "{{url}}/accounts/{account_id}/balance"
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{url}}/accounts/{account_id}/balance"
+					},
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\n \"account_id\": \"ACC001\",\n \"balance\": 1500.75,\n \"currency\": \"USD\",\n \"last_updated\": \"2024-01-15T10:30:00Z\"\n}"
+				}
+			]
+		},
+		{
+			"name": "/transactions/{transaction_id}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": "{{url}}//transactions/{transaction_id}"
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{url}}//transactions/{transaction_id}"
+					},
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\n \"transaction_id\": \"TXN123456\",\n \"from_account\": \"ACC001\",\n \"to_account\": \"ACC002\",\n \"amount\": 100.5,\n \"currency\": \"USD\",\n \"status\": \"completed\",\n \"timestamp\": \"2024-01-15T10:30:00Z\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://f6b2a073-3ae1-447f-9f7e-a9eb76502794.mock.pstmn.io"
+		}
+	]
+}

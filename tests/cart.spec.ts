@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/login.page';
 import { ProductsPage } from '../pages/products.page';
 
 import { expect, Page } from '@playwright/test';
+import { Sidebar } from '../pages/cart.page';
 
 export class CartPage {
   constructor(public page: Page) {}
@@ -91,3 +92,60 @@ await products.goToCart();
 await expect(removedProduct).toHaveCount(0);
 
 });
+
+test('validate cart count after adding and removing products', async ({ page }) => {
+  const login = new LoginPage(page);
+  const products = new ProductsPage(page);
+  const cart = new CartPage(page);
+
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+
+  await products.addProductToCart('Sauce Labs Backpack');
+  await products.addProductToCart('Sauce Labs Bike Light');
+  await products.expectCartCount('2');  
+  await products.removeProductFromCart('Sauce Labs Bike Light');
+  await products.expectCartCount('1');  
+  await products.goToCart();
+  await cart.expectProductInCart('Sauce Labs Backpack');
+});  
+
+test.describe('Cart page navigation', () => {
+  test('navigate to cart page from products page', async ({ page }) => {
+    const login = new LoginPage(page);
+    const products = new ProductsPage(page);
+    const cart = new CartPage(page);  
+    await login.goto();
+    await login.login('standard_user', 'secret_sauce');
+
+    await products.goToCart();
+    await expect(page).toHaveURL(/.*cart.html/);    
+  }  );
+
+  test('navigate back to products page from cart page', async ({ page }) => {
+    const login = new LoginPage(page);
+    const products = new ProductsPage(page);
+    const cart = new CartPage(page);  
+    await login.goto();
+    await login.login('standard_user', 'secret_sauce');
+
+    await products.goToCart();
+    await expect(page).toHaveURL(/.*cart.html/);  
+    await cart.page.getByRole('button', { name: 'Continue Shopping' }).click();
+    await products.expectOnProductsPage();  
+  });
+
+  test('navigate with side menu from cart to log out', async ({ page }) => {
+  const login = new LoginPage(page);
+
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+
+   await page.locator('[data-test="shopping-cart-link"]').click();
+  await page.getByRole('button', { name: 'Open Menu' }).click();
+  await page.locator('[data-test="logout-sidebar-link"]').click();
+});
+
+
+});
+

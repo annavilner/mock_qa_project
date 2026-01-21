@@ -1,13 +1,9 @@
-import { test, expect } from '../fixtures/apiFixtures';
+import { test, expect } from '@playwright/test';
+import { API_BASE_URL } from '../fixtures/apiFixtures';
 
-test('GET /api/ validate response', async ({ request, basicApiURL }) => {
-  const response = await request.get(await basicApiURL(), {
-    headers: {
-      'User-Agent': 'Playwright API Test',
-      'Accept': 'application/json'
-    }
-  });
 
+test('GET / validate response', async ({ request }) => {
+   const response = await request.get(`https://f6b2a073-3ae1-447f-9f7e-a9eb76502794.mock.pstmn.io/accounts/{account_id}/balance`);
   // Validate status code
   expect(response.status()).toBe(200);
   expect(response.ok()).toBeTruthy();
@@ -22,3 +18,4 @@ test('GET /api/ validate response', async ({ request, basicApiURL }) => {
   expect(responseBody.account_id).toBe('ACC001');
   expect(typeof responseBody.balance).toBe('number');
 });
+
