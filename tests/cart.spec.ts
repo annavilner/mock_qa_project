@@ -110,7 +110,7 @@ test('validate cart count after adding and removing products', async ({ page }) 
   await cart.expectProductInCart('Sauce Labs Backpack');
 });  
 
-test.describe('Cart page navigation', () => {
+test.describe('Cart page navigation',  { tag :'@cart'},() => {
   test('navigate to cart page from products page', async ({ page }) => {
     const login = new LoginPage(page);
     const products = new ProductsPage(page);
@@ -145,7 +145,33 @@ test.describe('Cart page navigation', () => {
   await page.getByRole('button', { name: 'Open Menu' }).click();
   await page.locator('[data-test="logout-sidebar-link"]').click();
 });
+    test('navigate with side menu from cart to Reset App', async ({ page }) => {
+  const login = new LoginPage(page);
 
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+
+   await page.locator('[data-test="shopping-cart-link"]').click();
+  await page.getByRole('button', { name: 'Open Menu' }).click();
+  await page.locator('[data-test="reset-sidebar-link"]').click();
+
+  expect(await page.locator('.shopping_cart_badge').count()).toBe(0);
+});
+
+test('navigate with side menu from cart to about side bar', async ({ page }) => {
+  const login = new LoginPage(page);
+
+  await login.goto();
+  await login.login('standard_user', 'secret_sauce');
+
+   await page.locator('[data-test="shopping-cart-link"]').click();
+  await page.getByRole('button', { name: 'Open Menu' }).click();
+  await page.locator('[data-test="about-sidebar-link"]').click();
+
+  expect(await page).toHaveURL(/saucelabs.com/);
+  expect(await page.title()).toContain('Testing');
+
+});
 
 });
 

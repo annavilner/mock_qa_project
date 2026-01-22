@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect ,request} from '@playwright/test';
 import { API_BASE_URL } from '../fixtures/apiFixtures';
 
 
@@ -19,3 +19,18 @@ test('GET / validate response', async ({ request }) => {
   expect(typeof responseBody.balance).toBe('number');
 });
 
+
+
+test('POST create user using APIRequestContext', async () => {
+  const apiContext = await request.newContext({
+    baseURL: 'https://pokeapi.co/',
+    extraHTTPHeaders: {
+      'Content-Type': 'application/json',
+    },
+});
+
+const response = await apiContext.get('https://pokeapi.co/api/v2/pokemon/132/encounters');
+
+  const body = await response.json();
+  console.log(body);
+});
